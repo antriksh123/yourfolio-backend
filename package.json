@@ -5,7 +5,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon server"
+    "dev-start": "nodemon server",
+    "prod-start": "node server"
   },
   "author": "Antariksh Verma",
   "license": "MIT",

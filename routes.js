@@ -146,7 +146,7 @@ router.post('/api/auth/login', async (req, res) => {
 })
 
 // Delete a user and their portfolio
-router.DELETE("/api/users/delete", async (req, res) => {
+router.delete("/api/users/delete", async (req, res) => {
     auth(req, res)
     const deletedPortfolio = await Portfolio.findOneAndDelete({ user: req.user })
     const deletedUser = await User.findByIdAndDelete(req.user)
@@ -167,7 +167,7 @@ router.post("/api/isTokenValid", async (req, res) => {
 })
 
 // Getting one user
-router.GET("/api/users/user", async (req, res) => {
+router.get("/api/users/user", async (req, res) => {
     auth(req, res)
     const user = await User.findById(req.user)
     res.json({
@@ -178,7 +178,7 @@ router.GET("/api/users/user", async (req, res) => {
 })
 
 // Getting the porfolio based on username
-router.GET("/api/portfolio/:username", async (req, res) => {
+router.get("/api/portfolio/:username", async (req, res) => {
     const existingUser = await User.findOne({ username: req.params.username })
     
     // User exists

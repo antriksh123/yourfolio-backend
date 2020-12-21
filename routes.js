@@ -1,13 +1,20 @@
-import express from 'express'
+import neuron from '@yummyweb/neuronjs'
+import bodyParser from 'body-parser'
+import cors from 'cors'
+import mongoose from 'mongoose'
+import emailValidator from 'email-validator'
+import passwordValidator from 'password-validator'
 import User from './models/User.js'
 import Portfolio from './models/Portfolio.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import auth from './utils/auth.js'
-import emailValidator from 'email-validator'
-import passwordValidator from 'password-validator'
 
-// Custom Specifications
+// Dot env
+import dotenv from 'dotenv'
+dotenv.config()
+
+// Custom Password Specifications
 // Username Schema
 const usernameSchema = new passwordValidator()
 usernameSchema.is().min(3).is().max(18).is().not().spaces()
@@ -16,10 +23,18 @@ usernameSchema.is().min(3).is().max(18).is().not().spaces()
 const passwordSchema = new passwordValidator()
 passwordSchema.is().min(8).is().max(100).has().uppercase().has().lowercase().has().digits().is().not().spaces()
 
-const router = express.Router()
+const PORT = process.env.PORT || 5000
+const neuronjs = neuron()
+
+// Middleware
+neuronjs.use(bodyParser())
+neuronjs.use(cors())
+
+// Mongoose Connection
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log("MongoDB Connected"))
 
 // API Routes
-router.post('/api/auth/signup', async (req, res) => {
+neuronjs.POST('/api/auth/signup', async (req, res) => {
     const { username, email, password, passwordConfirmation } = req.body
 
     // Validation: all fields are filled
@@ -120,7 +135,7 @@ router.post('/api/auth/signup', async (req, res) => {
     .catch(err => console.log(err))
 })
 
-router.post('/api/auth/login', async (req, res) => {
+neuronjs.POST('/api/auth/login', async (req, res) => {
     const { username, password } = req.body
 
     // Validate
@@ -146,14 +161,14 @@ router.post('/api/auth/login', async (req, res) => {
 })
 
 // Delete a user and their portfolio
-router.delete("/api/users/delete", async (req, res) => {
+neuronjs.DELETE("/api/users/delete", async (req, res) => {
     auth(req, res)
     const deletedPortfolio = await Portfolio.findOneAndDelete({ user: req.user })
     const deletedUser = await User.findByIdAndDelete(req.user)
     res.json(deletedUser)
 })
 
-router.post("/api/isTokenValid", async (req, res) => {
+neuronjs.POST("/api/isTokenValid", async (req, res) => {
     const token = req.headers["x-auth-token"]
     if (!token) return res.json(false)
     
@@ -167,7 +182,7 @@ router.post("/api/isTokenValid", async (req, res) => {
 })
 
 // Getting one user
-router.get("/api/users/user", async (req, res) => {
+neuronjs.GET("/api/users/user", async (req, res) => {
     auth(req, res)
     const user = await User.findById(req.user)
     res.json({
@@ -178,25 +193,22 @@ router.get("/api/users/user", async (req, res) => {
 })
 
 // Getting the porfolio based on username
-router.get("/api/portfolio/:username", async (req, res) => {
-    try {
-        const existingUser = await User.findOne({ username: req.params.username })
-    }
-    // User does not exist
-    catch (e) {
-        console.log(e)
-        return res.status(400).json({ "error": "true", "msg": "user does not exist" })
-    }
+neuronjs.GET("/api/portfolio/:username", async (req, res) => {
+    const existingUser = await User.findOne({ username: req.params.username })
     
     // User exists
     if (existingUser) {
         const userPortfolio = await Portfolio.findOne({ user: existingUser._id })
         return res.status(200).json(userPortfolio)
     }
+    // User does not exist
+    else {
+        return res.status(400).json({ "error": "true", "msg": "user does not exist" })
+    }
 })
 
 // Update Portfolio info
-router.post("/api/portfolio/update", async (req, res) => {
+neuronjs.POST("/api/portfolio/update", async (req, res) => {
     auth(req, res)
 
     // Find the portfolio
@@ -221,4 +233,4 @@ router.post("/api/portfolio/update", async (req, res) => {
     }
 })
 
-export default router
+neuronjs.listen(PORT, () => console.log("Server is running on port " + PORT))

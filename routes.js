@@ -179,16 +179,18 @@ router.get("/api/users/user", async (req, res) => {
 
 // Getting the porfolio based on username
 router.get("/api/portfolio/:username", async (req, res) => {
-    const existingUser = await User.findOne({ username: req.params.username })
+    try {
+        const existingUser = await User.findOne({ username: req.params.username })
+    }
+    // User does not exist
+    catch (e) {
+        return res.status(400).json({ "error": "true", "msg": "user does not exist" })
+    }
     
     // User exists
     if (existingUser) {
         const userPortfolio = await Portfolio.findOne({ user: existingUser._id })
         return res.status(200).json(userPortfolio)
-    }
-    // User does not exist
-    else {
-        return res.status(400).json({ "error": "true", "msg": "user does not exist" })
     }
 })
 

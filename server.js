@@ -17,10 +17,6 @@ app.use(cors())
 // Mongoose Connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log("MongoDB Connected"))
 
-app.use('/server', router)
-
-app.get("/", (req, res) => {
-    res.send("hey")
-})
+app.use('/', router)
 
 app.listen(PORT, () => console.log("Server is running on port " + PORT))

@@ -15,7 +15,7 @@ app.use(express.json())
 app.use(cors())
 
 // Mongoose Connection
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log("MongoDB Connected"))
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true }, () => console.log("MongoDB Connected"))
 
 app.use('/', router)
 

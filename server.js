@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import mongoose from 'mongoose'
-import router from './routes'
+import router from './routes.js'
 
 // Dot env
 //import dotenv from 'dotenv'

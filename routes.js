@@ -184,6 +184,7 @@ router.get("/api/portfolio/:username", async (req, res) => {
     }
     // User does not exist
     catch (e) {
+        console.log(e)
         return res.status(400).json({ "error": "true", "msg": "user does not exist" })
     }
     
